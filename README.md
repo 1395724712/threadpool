@@ -7,9 +7,9 @@ keywords:模仿muduo的线程池思想，使用c++11新特性，实现参考：g
 
 基本思路参考muduo::base::ThreadPool:存在一个线程池`threadPool_`,类型为`vector<thread>`；存在一个事先指定大小的任务队列`tasks_`,类型为`queue<fucntion<void>>`。加入条件变量`notFull_`进行判满，加入条件变量`notEmpty_`进行判空，它们的类型为`condition_variable`。*选择性加入出错捕获功能。*
 
-## 1、start(unsigned int num = 0)
+## 1、start(unsigned int num = 1)
 * 它负责什么工作：
-创建指定数量的线程，如果为0，就不创建子线程。
+创建指定数量的线程,默认参数为1
 
 ## 2、run()
 * 这是个什么
@@ -32,3 +32,5 @@ keywords:模仿muduo的线程池思想，使用c++11新特性，实现参考：g
 从任务队列取出任务并执行，*捕获错误*。
 
 ## 4、stop()
+* 这是什么
+通知所有线程停止运行
