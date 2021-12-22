@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/lucky7/WorkSpace/threadpool/main.cpp
+threadpool.hpp
+/home/lucky7/WorkSpace/threadpool/threadpool.hpp
+thread
+-
+iostream
+-
+
+/home/lucky7/WorkSpace/threadpool/threadpool.cpp
+threadpool.hpp
+/home/lucky7/WorkSpace/threadpool/threadpool.hpp
+assert.h
+-
+utility
+-
+memory
+-
+
+/home/lucky7/WorkSpace/threadpool/threadpool.hpp
+vector
+-
+queue
+-
+iostream
+-
+thread
+-
+mutex
+-
+condition_variable
+-
+future
+-
+functional
+-
+

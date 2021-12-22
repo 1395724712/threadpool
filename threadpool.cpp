@@ -35,7 +35,7 @@ void ThreadPool::start(const unsigned int threadNum){
     assert(threadNum>0);
 
     for(int i=0;i<threadNum;i++){
-        threadPool_.emplace_back(runInThread);
+        threadPool_.emplace_back(std::bind(&ThreadPool::runInThread,this));
     }
     
 }
@@ -48,10 +48,10 @@ auto ThreadPool::run(F&& func,Args&&...args)->std::future<decltype(func(args...)
 
     //2、指向packaged_task对象的智能指针
     //为什么要使用智能指针
-    std::shared_ptr<rtnType()> taskPtr = std::make_shared<std::packaged_task<rtnType>>(std::bind(std::forward<F>(func),std::forward<Args>(args...)));
+    auto taskPtr = std::make_shared<std::packaged_task<rtnType>>(std::bind(std::forward<F>(func),std::forward<Args>(args)...));
 
     //3、加入到任务队列的lambda表达式，即void()类型的可调用对象
-    void lambdaTask = [](){(*taskPtr)()};
+    auto lambdaTask = [taskPtr](){(*taskPtr)();};
     {
         std::unique_lock<std::mutex> lock(mutex_);
         while(tasks_.size() == maxQueueSize_)
@@ -60,7 +60,7 @@ auto ThreadPool::run(F&& func,Args&&...args)->std::future<decltype(func(args...)
     }
 
     //4、创建future对象，并返回
-    future<rtnType> rtnFuture = taskPtr->get_future();
+    std::future<rtnType> rtnFuture = taskPtr->get_future();
     return rtnFuture;
 }
 
