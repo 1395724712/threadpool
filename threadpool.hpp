@@ -23,8 +23,28 @@ public:
 
     //提交业务函数
     template<typename F,typename... Args>
-    auto run(F&& func,Args&&...args) ->std::future<decltype(func(args...))>;
+    auto run(F&& func,Args&&...args)->std::future<decltype(func(args...))>
+    {
+        //1、确认返回future的类型
+        using rtnType = decltype(func(args...));
 
+        //2、指向packaged_task对象的智能指针
+        //为什么要使用智能指针
+        auto taskPtr = std::make_shared<std::packaged_task<rtnType()>>(std::bind(std::forward<F>(func),std::forward<Args>(args)...));
+
+        //3、加入到任务队列的lambda表达式，即void()类型的可调用对象
+        auto lambdaTask = [taskPtr](){(*taskPtr)();};
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            while(maxQueueSize_ != 0 && tasks_.size() == maxQueueSize_)
+                notFull_.wait(lock);
+            tasks_.emplace(std::move(lambdaTask));
+        }
+
+        //4、创建future对象，并返回
+        std::future<rtnType> rtnFuture = taskPtr->get_future();
+        return rtnFuture;
+    }
 private:
     //停止执行任务
     void stop();
